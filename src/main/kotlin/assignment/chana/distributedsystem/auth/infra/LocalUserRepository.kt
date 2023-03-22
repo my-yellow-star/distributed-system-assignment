@@ -1,5 +1,7 @@
-package assignment.chana.distributedsystem.auth
+package assignment.chana.distributedsystem.auth.infra
 
+import assignment.chana.distributedsystem.auth.User
+import assignment.chana.distributedsystem.auth.UserRepository
 import java.util.UUID
 import org.springframework.stereotype.Component
 
