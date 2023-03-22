@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>File Upload</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1>File Upload</h1>
+<form>
+    <input type="file" id="fileInput" name="fileInput">
+    <button type="button" id="uploadButton">Upload</button>
+</form>
+<div id="status"></div>
+
+<script th:inline="javascript">
+    function stringToUint(string) {
+        let encoded = btoa(decodeURI(encodeURIComponent(string))),
+            charList = encoded.split(''),
+            uintArray = [];
+        for (let i = 0; i < charList.length; i++) {
+            uintArray.push(charList[i].charCodeAt(0));
+        }
+        return new Uint8Array(uintArray);
+    }
+
+    $(function () {
+        let socket = new WebSocket("ws://" + location.host + "/upload?userId=560af567-5360-d42f-f890-73330c6f2b3a");
+        let fileInput = $("#fileInput");
+
+        $("#uploadButton").click(function () {
+            let file = fileInput[0].files[0];
+            let reader = new FileReader();
+
+            reader.onload = function () {
+                let content = reader.result;
+                console.log(content);
+                let message = {
+                    filename: file.name,
+                    content: content
+                };
+                socket.send(new TextEncoder().encode(JSON.stringify(message)));
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+
+        socket.onmessage = function (event) {
+            $("#status").text("File uploaded successfully");
+        };
+        socket.onclose = function (event) {
+            console.log(event);
+        }
+    });
+</script>
+</body>
+</html>

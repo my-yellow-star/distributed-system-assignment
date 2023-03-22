@@ -1,31 +1,40 @@
 package assignment.chana.distributedsystem.auth
 
+import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.servlet.view.RedirectView
 
-@RestController
-@RequestMapping("/api/auth")
+@Controller
+@RequestMapping
 class AuthController(
     private val authService: AuthService
 ) {
-    @PostMapping("/register")
-    fun register(@RequestBody body: RegisterInput) =
-        authService
-            .register(body.username, body.password)
+    @GetMapping("/register")
+    fun getRegisterView(
+        model: Model
+    ): String {
+        model.addAttribute("input", RegisterInput("", ""))
+        return "contents/register"
+    }
 
-    @PostMapping("/login")
-    fun login(@RequestBody body: LoginInput) =
-        authService
-            .login(body.username, body.password)
+    @PostMapping("/register")
+    fun register(
+        @ModelAttribute("input") input: RegisterInput
+    ): RedirectView {
+        kotlin.runCatching {
+            authService.register(input.username, input.password)
+        }.getOrElse {
+            it.printStackTrace()
+            return RedirectView("register?error")
+        }
+        return RedirectView("login")
+    }
 
     data class RegisterInput(
-        val username: String,
-        val password: String
-    )
-
-    data class LoginInput(
         val username: String,
         val password: String
     )
