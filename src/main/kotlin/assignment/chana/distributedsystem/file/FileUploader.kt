@@ -4,5 +4,5 @@ import java.nio.ByteBuffer
 import java.util.UUID
 
 interface FileUploader {
-    fun upload(userId: UUID, fileName: String, byteBuffer: ByteBuffer)
+    fun upload(userId: UUID, fileName: String, byteBuffer: ByteBuffer): UserFile
 }

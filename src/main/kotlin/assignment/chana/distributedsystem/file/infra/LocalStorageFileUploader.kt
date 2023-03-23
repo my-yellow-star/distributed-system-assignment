@@ -2,6 +2,7 @@ package assignment.chana.distributedsystem.file.infra
 
 import assignment.chana.distributedsystem.file.FileSocketHandler
 import assignment.chana.distributedsystem.file.FileUploader
+import assignment.chana.distributedsystem.file.UserFile
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -10,7 +11,7 @@ import java.nio.channels.FileChannel
 import java.util.*
 
 class LocalStorageFileUploader : FileUploader {
-    override fun upload(userId: UUID, fileName: String, byteBuffer: ByteBuffer) {
+    override fun upload(userId: UUID, fileName: String, byteBuffer: ByteBuffer): UserFile {
         val file = File(resolveFilePath(userId), fileName)
         lateinit var out: FileOutputStream
         lateinit var outChannel: FileChannel
@@ -31,6 +32,7 @@ class LocalStorageFileUploader : FileUploader {
             }
         }
         byteBuffer.position(0)
+        return UserFile(userId, fileName, byteBuffer)
     }
 
     private fun resolveFilePath(userId: UUID): String {

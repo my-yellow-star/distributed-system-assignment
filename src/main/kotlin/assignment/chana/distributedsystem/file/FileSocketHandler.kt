@@ -38,12 +38,12 @@ class FileSocketHandler(
             fileUploadingSessions.first { it.sessionId == session.id }
         val fileName = uploadingSession.fileName
         val byteBuffer = message.payload
-        fileUploader.upload(userId, fileName, byteBuffer)
+        val uploaded = fileUploader.upload(userId, fileName, byteBuffer)
         val sessionsForSync =
             sessions.filter { it.userId == userId }
         sessionsForSync.forEach {
             runCatching {
-                it.session.sendMessage(BinaryMessage(byteBuffer))
+                it.session.sendMessage(BinaryMessage(uploaded.byteBuffer))
             }.getOrElse {
                 it.printStackTrace()
             }
