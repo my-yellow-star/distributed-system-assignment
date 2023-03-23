@@ -23,7 +23,7 @@
             let reader = new FileReader();
 
             socket.send(JSON.stringify({
-                "type": "START",
+                "type": "START_FILE_UPLOAD",
                 "fileName": file.name
             }))
             reader.onload = function () {

@@ -17,7 +17,7 @@ class FileSocketHandler(
     private val fileUploadingSessions: MutableList<FileUploadingSession> = mutableListOf()
 
     companion object {
-        const val START_FILE_UPLAOD_FLAG = "START"
+        const val START_FILE_UPLAOD_FLAG = "START_FILE_UPLOAD"
         val FILE_UPLOAD_PATH: String = System.getProperty("user.dir")
         val logger: Logger = LoggerFactory.getLogger(this::class.java)
     }
@@ -36,7 +36,7 @@ class FileSocketHandler(
         val userId = parseUserId(session)
         val uploadingSession =
             fileUploadingSessions.first { it.sessionId == session.id }
-        val fileName = uploadingSession.fileName!!
+        val fileName = uploadingSession.fileName
         val byteBuffer = message.payload
         fileUploader.upload(userId, fileName, byteBuffer)
         val sessionsForSync =
