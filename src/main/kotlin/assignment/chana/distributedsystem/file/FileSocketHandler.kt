@@ -59,8 +59,9 @@ class FileSocketHandler(
         val user = getUser(session)
         sessions.add(UserSession(user.id, session))
         val message = mapOf(
-            "type" to "welcome",
-            "value" to "${user.name}님이 접속하셨습니다."
+            "type" to "enter",
+            "name" to user.name,
+            "session" to session.id
         )
         sessions.forEach {
             it.session.sendMessage(TextMessage(JSONObject(message).toString()))
@@ -73,8 +74,9 @@ class FileSocketHandler(
         fileUploadingSessions.removeAll { it.sessionId == session.id }
         val user = getUser(session)
         val message = mapOf(
-            "type" to "welcome",
-            "value" to "${user.name}님이 퇴장하셨습니다."
+            "type" to "exit",
+            "name" to user.name,
+            "session" to session.id
         )
         sessions.forEach {
             it.session.sendMessage(TextMessage(JSONObject(message).toString()))

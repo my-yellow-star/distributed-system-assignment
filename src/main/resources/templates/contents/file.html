@@ -42,24 +42,29 @@
             reader.readAsArrayBuffer(file);
         }
 
-        $(function () {
-            $("#uploadButton").click(upload);
+        function handleTextMessage(json) {
+            let welcome = $("#welcome");
+            let type = json["type"];
+            switch (type) {
+                case "enter":
+                    welcome.append(`<p class="p-0 small">${json['name']}님이 접속하셨습니다.<br>세션: ${json['session']}</p>`);
+                    break;
+                case "exit":
+                    welcome.append(`<p class="p-0 small">${json['name']}님이 퇴장하셨습니다.<br>세션: ${json['session']}</p>`);
+                    break;
+            }
+        }
 
-            socket.onmessage = function (event) {
-                if (event.data instanceof Blob) {
+        $("#uploadButton").click(upload);
 
-                } else {
-                    let json = JSON.parse(event.data);
-                    let type = json["type"];
-                    console.log(json);
-                    console.log(type);
-                    switch (type) {
-                        case "welcome":
-                            $("#welcome").append(`<p class="p-0 small">${json['value']}</p>`);
-                    }
-                }
-            };
-        });
+        socket.onmessage = function (event) {
+            if (event.data instanceof Blob) {
+
+            } else {
+                let json = JSON.parse(event.data);
+                handleTextMessage(json);
+            }
+        };
     </script>
 </th:block>
 </html>
