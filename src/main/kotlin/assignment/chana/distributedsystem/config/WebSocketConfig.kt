@@ -15,7 +15,9 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 
 @Configuration
 @EnableWebSocket
-class WebSocketConfig : WebSocketConfigurer {
+class WebSocketConfig(
+    private val userRepository: UserRepository
+) : WebSocketConfigurer {
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         registry.addHandler(socketHandler(), "/upload")
     }
@@ -30,7 +32,7 @@ class WebSocketConfig : WebSocketConfigurer {
 
     @Bean
     fun socketHandler(): WebSocketHandler {
-        return FileSocketHandler(fileUploader())
+        return FileSocketHandler(fileUploader(), userRepository)
     }
 
     @Bean

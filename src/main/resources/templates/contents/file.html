@@ -17,40 +17,48 @@
             </div>
         </div>
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion p-1" id="accordionSidebar">
-            <div class="text-light">[[${user.name}]]님 환영합니다.</div>
-            <div id="message"></div>
+            <div class="text-light text-center">[[${user.name}]]님 환영합니다.</div>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-block">로그아웃</a>
+            <div class="text-white" style="padding-top: 60px">
+                <p class="small">접속 기록</p>
+            </div>
+            <div id="welcome" class="col p-0 text-gray-100 text-white-50"></div>
         </ul>
     </div>
     <script th:inline="javascript">
         let user = [[${user}]];
-        console.log(user);
+        let socket = new WebSocket("ws://" + location.host + "/upload?userId=" + user.id);
+        function upload() {
+            let file =  $("#fileInput")[0].files[0];
+            let reader = new FileReader();
+            socket.send(JSON.stringify({
+                "type": "START_FILE_UPLOAD",
+                "fileName": file.name
+            }))
+            reader.onload = function () {
+                let content = reader.result;
+                socket.send(content);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
         $(function () {
-            let socket = new WebSocket("ws://" + location.host + "/upload?userId=" + user.id);
-            let fileInput = $("#fileInput");
-
-            $("#uploadButton").click(function () {
-                let file = fileInput[0].files[0];
-                let reader = new FileReader();
-
-                socket.send(JSON.stringify({
-                    "type": "START_FILE_UPLOAD",
-                    "fileName": file.name
-                }))
-                reader.onload = function () {
-                    let content = reader.result;
-                    socket.send(content);
-                };
-
-                reader.readAsArrayBuffer(file);
-            });
+            $("#uploadButton").click(upload);
 
             socket.onmessage = function (event) {
-                console.log(event);
-                $("#status").text("File uploaded successfully");
+                if (event.data instanceof Blob) {
+
+                } else {
+                    let json = JSON.parse(event.data);
+                    let type = json["type"];
+                    console.log(json);
+                    console.log(type);
+                    switch (type) {
+                        case "welcome":
+                            $("#welcome").append(`<p class="p-0 small">${json['value']}</p>`);
+                    }
+                }
             };
-            socket.onclose = function (event) {
-                console.log(event);
-            }
         });
     </script>
 </th:block>
