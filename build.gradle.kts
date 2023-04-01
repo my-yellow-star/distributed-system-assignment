@@ -33,6 +33,7 @@ dependencies {
 	implementation("org.webjars:stomp-websocket:2.3.3")
 	implementation("org.webjars:bootstrap:3.3.7")
 	implementation("org.webjars:jquery:3.1.1-1")
+	implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")

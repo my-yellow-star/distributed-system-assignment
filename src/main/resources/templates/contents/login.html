@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/default_layout}"
@@ -21,27 +20,39 @@
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <h1 class="h4 text-gray-900 mb-4">회원가입</h1>
+                                        <h1 class="h4 text-gray-900 mb-4">환영합니다!</h1>
                                     </div>
-                                    <form class="user" th:action="@{/register}" th:object="${input}" method="post">
+                                    <form class="user" th:action="@{/login}" method="post">
                                         <div class="form-group">
                                             <input type="text" class="form-control form-control-user"
                                                    id="username" aria-describedby="emailHelp"
                                                    name="username"
-                                                   th:field="*{username}"
                                                    placeholder="아이디">
                                         </div>
                                         <div class="form-group">
                                             <input type="password" class="form-control form-control-user"
                                                    name="password"
-                                                   th:field="*{password}"
                                                    id="password" placeholder="비밀번호">
                                         </div>
+                                        <div th:if="${(param.error != null)}" class="text-sm-left">
+                                            <h6 class="text-danger"> * 아이디 혹은 비밀번호를 확인해주세요</h6>
+                                        </div>
                                         <div class="form-group">
-                                            <input type="submit" value="회원가입"
+                                            <div class="custom-control custom-checkbox small">
+                                                <input type="checkbox" class="custom-control-input" id="customCheck">
+                                                <label class="custom-control-label" for="customCheck">Remember
+                                                    Me</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="submit" value="login"
                                                    class="btn btn-primary btn-user btn-block"/>
                                         </div>
                                     </form>
+                                    <hr>
+                                    <div class="text-center">
+                                        <a class="small" th:href="@{/register}">회원가입</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

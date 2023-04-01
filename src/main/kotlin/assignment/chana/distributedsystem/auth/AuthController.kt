@@ -21,6 +21,9 @@ class AuthController(
         return "contents/register"
     }
 
+    @GetMapping("/login")
+    fun getLoginView() = "contents/login"
+
     @PostMapping("/register")
     fun register(
         @ModelAttribute("input") input: RegisterInput

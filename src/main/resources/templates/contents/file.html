@@ -1,47 +1,57 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>File Upload</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-<h1>File Upload</h1>
-<form>
-    <input type="file" id="fileInput" name="fileInput">
-    <button type="button" id="uploadButton">Upload</button>
-</form>
-<div id="status"></div>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default_layout}"
+      lang="ko">
 
-<script th:inline="javascript">
-    $(function () {
-        let socket = new WebSocket("ws://" + location.host + "/upload?userId=560af567-5360-d42f-f890-73330c6f2b3a");
-        let fileInput = $("#fileInput");
+<th:block layout:fragment="content">
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <div id="wrapper">
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <h1>Ku:Loud</h1>
+                <form>
+                    <input type="file" id="fileInput" name="fileInput">
+                    <button type="button" id="uploadButton">Upload</button>
+                </form>
+            </div>
+        </div>
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion p-1" id="accordionSidebar">
+            <div class="text-light">[[${user.name}]]님 환영합니다.</div>
+            <div id="message"></div>
+        </ul>
+    </div>
+    <script th:inline="javascript">
+        let user = [[${user}]];
+        console.log(user);
+        $(function () {
+            let socket = new WebSocket("ws://" + location.host + "/upload?userId=" + user.id);
+            let fileInput = $("#fileInput");
 
-        $("#uploadButton").click(function () {
-            let file = fileInput[0].files[0];
-            let reader = new FileReader();
+            $("#uploadButton").click(function () {
+                let file = fileInput[0].files[0];
+                let reader = new FileReader();
 
-            socket.send(JSON.stringify({
-                "type": "START_FILE_UPLOAD",
-                "fileName": file.name
-            }))
-            reader.onload = function () {
-                let content = reader.result;
-                socket.send(content);
+                socket.send(JSON.stringify({
+                    "type": "START_FILE_UPLOAD",
+                    "fileName": file.name
+                }))
+                reader.onload = function () {
+                    let content = reader.result;
+                    socket.send(content);
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+
+            socket.onmessage = function (event) {
+                console.log(event);
+                $("#status").text("File uploaded successfully");
             };
-
-            reader.readAsArrayBuffer(file);
+            socket.onclose = function (event) {
+                console.log(event);
+            }
         });
-
-        socket.onmessage = function (event) {
-            console.log(event);
-            $("#status").text("File uploaded successfully");
-        };
-        socket.onclose = function (event) {
-            console.log(event);
-        }
-    });
-</script>
-</body>
+    </script>
+</th:block>
 </html>

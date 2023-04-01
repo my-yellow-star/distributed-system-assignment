@@ -28,6 +28,7 @@ class SecurityConfig(
                 .permitAll()
                 .and()
                 .formLogin()
+                .loginPage("/login")
                 .defaultSuccessUrl("/files")
                 .permitAll()
                 .and()
