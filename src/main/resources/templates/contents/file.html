@@ -11,9 +11,10 @@
             <div id="content">
                 <h1>Ku:Loud</h1>
                 <form>
-                    <input type="file" id="fileInput" name="fileInput">
+                    <input type="file" id="fileInput" name="fileInput" multiple>
                     <button type="button" id="uploadButton">Upload</button>
                 </form>
+                <div id="files" class="text-dark col"></div>
             </div>
         </div>
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion p-1" id="accordionSidebar">
@@ -28,29 +29,47 @@
     <script th:inline="javascript">
         let user = [[${user}]];
         let socket = new WebSocket("ws://" + location.host + "/upload?userId=" + user.id);
+        let files = [[${files}]];
+        for (let file of files) {
+            appendFileItem(file);
+        }
         function upload() {
-            let file =  $("#fileInput")[0].files[0];
-            let reader = new FileReader();
-            socket.send(JSON.stringify({
-                "type": "START_FILE_UPLOAD",
-                "fileName": file.name
-            }))
-            reader.onload = function () {
-                let content = reader.result;
-                socket.send(content);
-            };
-            reader.readAsArrayBuffer(file);
+            let files =  $("#fileInput")[0].files;
+            for (let file of files) {
+                let reader = new FileReader();
+                socket.send(JSON.stringify({
+                    "type": "START_FILE_UPLOAD",
+                    "fileName": file.name
+                }))
+                reader.onload = function () {
+                    let content = reader.result;
+                    socket.send(content);
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        function appendFileItem(file) {
+            let files = $("#files");
+            files.append(`<a href="${file['path']}" download>${file['fileName']}</a>`);
+        }
+
+        function appendWelcomeItem(json, type='enter') {
+            let welcome = $("#welcome");
+            let action = type === 'enter' ? '접속' : '종료'
+            welcome.append(`<p class="p-0 small">${json['name']}님이 ${action}하셨습니다.<br>세션: ${json['session']}</p>`);
         }
 
         function handleTextMessage(json) {
-            let welcome = $("#welcome");
             let type = json["type"];
             switch (type) {
                 case "enter":
-                    welcome.append(`<p class="p-0 small">${json['name']}님이 접속하셨습니다.<br>세션: ${json['session']}</p>`);
-                    break;
                 case "exit":
-                    welcome.append(`<p class="p-0 small">${json['name']}님이 퇴장하셨습니다.<br>세션: ${json['session']}</p>`);
+                    appendWelcomeItem(json, type);
+                    break;
+                case "uploadFile":
+                    let result = json['result'];
+                    appendFileItem(result);
                     break;
             }
         }
@@ -58,12 +77,8 @@
         $("#uploadButton").click(upload);
 
         socket.onmessage = function (event) {
-            if (event.data instanceof Blob) {
-
-            } else {
-                let json = JSON.parse(event.data);
-                handleTextMessage(json);
-            }
+            let json = JSON.parse(event.data);
+            handleTextMessage(json);
         };
     </script>
 </th:block>

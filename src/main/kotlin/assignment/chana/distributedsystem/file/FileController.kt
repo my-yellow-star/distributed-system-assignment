@@ -13,7 +13,8 @@ import org.springframework.web.servlet.view.RedirectView
 @Controller
 @RequestMapping("/files")
 class FileController(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val fileRepository: FileRepository
 ) {
     @GetMapping
     fun getFileView(model: Model, @AuthenticationPrincipal principal: User?) = run {
@@ -21,7 +22,9 @@ class FileController(
             return@run RedirectView("/login")
         val user = userRepository.findByName(principal.username)
             ?: return@run RedirectView("/login")
+        val files = fileRepository.findAllByUserId(user.id)
         model.addAttribute("user", user)
+        model.addAttribute("files", files)
         return@run "contents/file"
     }
 }
