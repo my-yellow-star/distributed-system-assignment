@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.configurationprocessor.json.JSONObject
+import org.springframework.stereotype.Component
 import org.springframework.web.socket.BinaryMessage
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
@@ -12,6 +13,7 @@ import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.BinaryWebSocketHandler
 import java.util.*
 
+@Component
 class FileSocketHandler(
     private val fileUploader: FileUploader,
     private val userRepository: UserRepository
@@ -44,9 +46,13 @@ class FileSocketHandler(
         val uploaded = fileUploader.upload(userId, fileName, byteBuffer)
         val sessionsForSync =
             sessions.filter { it.userId == userId }
+        val result = mapOf(
+            "type" to "uploadFile",
+            "result" to uploaded.toMap
+        )
         sessionsForSync.forEach {
             runCatching {
-                it.session.sendMessage(BinaryMessage(uploaded.byteBuffer))
+                it.session.sendMessage(TextMessage(JSONObject(result).toString()))
             }.getOrElse {
                 it.printStackTrace()
             }

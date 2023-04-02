@@ -1,8 +1,10 @@
 package assignment.chana.distributedsystem.file.infra
 
+import assignment.chana.distributedsystem.file.FileRepository
 import assignment.chana.distributedsystem.file.FileSocketHandler
 import assignment.chana.distributedsystem.file.FileUploader
 import assignment.chana.distributedsystem.file.UserFile
+import org.springframework.stereotype.Component
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -10,7 +12,10 @@ import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.util.*
 
-class LocalStorageFileUploader : FileUploader {
+@Component
+class LocalStorageFileUploader(
+    private val fileRepository: FileRepository
+) : FileUploader {
     override fun upload(userId: UUID, fileName: String, byteBuffer: ByteBuffer): UserFile {
         val file = File(resolveFilePath(userId), fileName)
         lateinit var out: FileOutputStream
@@ -32,11 +37,11 @@ class LocalStorageFileUploader : FileUploader {
             }
         }
         byteBuffer.position(0)
-        return UserFile(userId, fileName, byteBuffer)
+        return fileRepository.save(UserFile(userId, fileName, "$userId/$fileName"))
     }
 
     private fun resolveFilePath(userId: UUID): String {
-        val path = "${FileSocketHandler.FILE_UPLOAD_PATH}/src/main/resources/static/$userId}"
+        val path = "${FileSocketHandler.FILE_UPLOAD_PATH}/src/main/resources/static/$userId"
         val file = File(path)
         if (!file.exists())
             file.mkdirs()
