@@ -27,6 +27,8 @@ class SecurityConfig(
                 .anyRequest()
                 .permitAll()
                 .and()
+                .csrf()
+                .disable()
                 .formLogin()
                 .loginPage("/login")
                 .defaultSuccessUrl("/files")
