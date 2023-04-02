@@ -6,17 +6,27 @@
 
 <th:block layout:fragment="content">
     <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <div id="wrapper">
         <div id="content-wrapper" class="d-flex flex-column">
-            <div id="content">
-                <h1>Ku:Loud</h1>
-                <form>
-                    <input type="file" id="fileInput" name="fileInput" multiple>
-                    <button type="button" id="uploadButton">Upload</button>
-                </form>
-                <div id="files" class="text-dark col"></div>
+            <div id="content" class="container w-100">
+                <!-- title -->
+                <div class="row flex-row justify-content-between align-content-center container p-2">
+                    <h1 class="text-primary font-weight-bolder">Ku:Loud</h1>
+                    <button type="button" class="btn btn-user bg-primary text-light font-weight-normal"
+                            id="uploadButton">파일 업로드
+                    </button>
+                </div>
+                <input type="file" id="fileInput" name="fileInput" onchange="onFileSelected()" hidden multiple>
+                <!-- file list -->
+                <div class="text-primary">업로드 목록</div>
+                <div class="card h-75 p-2">
+                    <div id="files" class="text-dark col"></div>
+                </div>
             </div>
         </div>
+        <!-- sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion p-1" id="accordionSidebar">
             <div class="text-light text-center">[[${user.name}]]님 환영합니다.</div>
             <a th:href="@{/logout}" class="btn btn-secondary btn-block">로그아웃</a>
@@ -33,7 +43,7 @@
         for (let file of files) {
             appendFileItem(file);
         }
-        function upload() {
+        function onFileSelected() {
             let files =  $("#fileInput")[0].files;
             for (let file of files) {
                 let reader = new FileReader();
@@ -51,7 +61,21 @@
 
         function appendFileItem(file) {
             let files = $("#files");
-            files.append(`<a href="${file['path']}" download>${file['fileName']}</a>`);
+            files.append(`
+                <nav class="navbar navbar-expand navbar-light bg-light mb-1">
+                    ${file['fileName']}
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                옵션
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right animated--grow-in" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="${file['path']}" download>다운로드</a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+            `);
         }
 
         function appendWelcomeItem(json, type='enter') {
@@ -74,7 +98,9 @@
             }
         }
 
-        $("#uploadButton").click(upload);
+        $("#uploadButton").click(function () {
+            $("#fileInput").click();
+        });
 
         socket.onmessage = function (event) {
             let json = JSON.parse(event.data);
