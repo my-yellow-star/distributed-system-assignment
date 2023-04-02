@@ -35,7 +35,7 @@ class SecurityConfig(
                 .logout()
                 .logoutRequestMatcher(AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/")
-                .invalidateHttpSession(true)
+                .invalidateHttpSession(false) // for test
                 .and()
                 .exceptionHandling()
         }

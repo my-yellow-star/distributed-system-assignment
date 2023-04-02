@@ -29,7 +29,7 @@
         <!-- sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion p-1" id="accordionSidebar">
             <div class="text-light text-center">[[${user.name}]]님 환영합니다.</div>
-            <a th:href="@{/logout}" class="btn btn-secondary btn-block">로그아웃</a>
+            <a th:href="@{/logout}" onclick="logout()" class="btn btn-secondary btn-block">로그아웃</a>
             <div class="text-white" style="padding-top: 60px">
                 <p class="small">접속 기록</p>
             </div>
@@ -98,6 +98,10 @@
             }
         }
 
+        function logout() {
+            socket.close();
+        }
+
         $("#uploadButton").click(function () {
             $("#fileInput").click();
         });
@@ -106,6 +110,9 @@
             let json = JSON.parse(event.data);
             handleTextMessage(json);
         };
+        socket.onclose = function (event) {
+            console.log(event);
+        }
     </script>
 </th:block>
 </html>
