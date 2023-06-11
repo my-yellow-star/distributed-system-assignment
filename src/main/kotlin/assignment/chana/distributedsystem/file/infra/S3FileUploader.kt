@@ -1,5 +1,6 @@
 package assignment.chana.distributedsystem.file.infra
 
+import assignment.chana.distributedsystem.file.FileRepository
 import assignment.chana.distributedsystem.file.FileUploader
 import assignment.chana.distributedsystem.file.UserFile
 import com.amazonaws.services.s3.AmazonS3Client
@@ -14,7 +15,8 @@ import java.util.*
 @Component
 @Profile("develop")
 class S3FileUploader(
-    private val s3Client: AmazonS3Client
+    private val s3Client: AmazonS3Client,
+    private val fileRepository: FileRepository
 ) : FileUploader {
     override fun upload(userId: UUID, fileName: String, byteBuffer: ByteBuffer): UserFile {
         val path = "$userId/$fileName"
@@ -22,7 +24,7 @@ class S3FileUploader(
             PutObjectRequest(BUCKET_NAME, path, ByteBufferInputStream(byteBuffer), ObjectMetadata())
                 .withCannedAcl(CannedAccessControlList.PublicRead)
         )
-        return UserFile(userId, fileName, path)
+        return fileRepository.save(UserFile(userId, fileName, s3Client.getResourceUrl(BUCKET_NAME, path)))
     }
 
     companion object {
