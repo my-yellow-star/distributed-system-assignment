@@ -23,7 +23,6 @@ class FileSocketHandler(
 
     companion object {
         const val START_FILE_UPLAOD_FLAG = "START_FILE_UPLOAD"
-        val FILE_UPLOAD_PATH: String = System.getProperty("user.dir")
         val logger: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
@@ -57,6 +56,7 @@ class FileSocketHandler(
                 it.printStackTrace()
             }
         }
+        logger.info("FILE UPLOADED - $fileName")
         fileUploadingSessions.remove(uploadingSession)
     }
 
@@ -92,14 +92,13 @@ class FileSocketHandler(
     }
 
     private fun parseUserId(session: WebSocketSession) =
-        session.uri!!.query.split("&")
-            .map {
-                val parts = it.split("=")
-                Pair(parts.firstOrNull() ?: "", parts.lastOrNull() ?: "")
-            }.first {
-                it.first == "userId"
-            }.let {
-                UUID.fromString(it.second)
+        UUID.fromString(parseQuery(session)["userId"])
+
+    private fun parseQuery(session: WebSocketSession) =
+        session.uri!!.query
+            .split("&")
+            .associateBy({ it.split("=").firstOrNull() ?: "" }) {
+                it.split("=").lastOrNull() ?: ""
             }
 
     private fun getUser(session: WebSocketSession) =

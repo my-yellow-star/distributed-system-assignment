@@ -1,7 +1,6 @@
 package assignment.chana.distributedsystem.file.infra
 
 import assignment.chana.distributedsystem.file.FileRepository
-import assignment.chana.distributedsystem.file.FileSocketHandler
 import assignment.chana.distributedsystem.file.FileUploader
 import assignment.chana.distributedsystem.file.UserFile
 import org.springframework.stereotype.Component
@@ -41,10 +40,14 @@ class LocalStorageFileUploader(
     }
 
     private fun resolveFilePath(userId: UUID): String {
-        val path = "${FileSocketHandler.FILE_UPLOAD_PATH}/src/main/resources/static/$userId"
+        val path = "${FILE_UPLOAD_PATH}/src/main/resources/static/$userId"
         val file = File(path)
         if (!file.exists())
             file.mkdirs()
         return path
+    }
+
+    companion object {
+        val FILE_UPLOAD_PATH: String = System.getProperty("user.dir")
     }
 }
