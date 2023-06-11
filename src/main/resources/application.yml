@@ -1,7 +1,13 @@
 spring:
-  devtools:
-    livereload:
-      enabled: true
+#  devtools:
+#    livereload:
+#      enabled: true
+  config:
+    import:
+      - optional:env.yml
+  output:
+    ansi:
+      enabled: always
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html

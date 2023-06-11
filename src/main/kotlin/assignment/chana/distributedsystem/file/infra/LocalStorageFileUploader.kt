@@ -3,6 +3,7 @@ package assignment.chana.distributedsystem.file.infra
 import assignment.chana.distributedsystem.file.FileRepository
 import assignment.chana.distributedsystem.file.FileUploader
 import assignment.chana.distributedsystem.file.UserFile
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.io.File
 import java.io.FileOutputStream
@@ -12,6 +13,7 @@ import java.nio.channels.FileChannel
 import java.util.*
 
 @Component
+@Profile("test")
 class LocalStorageFileUploader(
     private val fileRepository: FileRepository
 ) : FileUploader {

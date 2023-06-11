@@ -34,6 +34,8 @@ dependencies {
 	implementation("org.webjars:bootstrap:3.3.7")
 	implementation("org.webjars:jquery:3.1.1-1")
 	implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
+	implementation(platform("com.amazonaws:aws-java-sdk-bom:1.11.1000"))
+	implementation("com.amazonaws:aws-java-sdk-s3")
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
