@@ -16,13 +16,15 @@ import java.util.*
 @Component
 class FileSocketHandler(
     private val fileUploader: FileUploader,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val fileRepository: FileRepository
 ) : BinaryWebSocketHandler() {
     private val sessions: MutableList<UserSession> = mutableListOf()
     private val fileUploadingSessions: MutableList<FileUploadingSession> = mutableListOf()
 
     companion object {
         const val START_FILE_UPLAOD_FLAG = "START_FILE_UPLOAD"
+        const val SHARE_FILE = "SHARE_FILE"
         val logger: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
@@ -33,6 +35,24 @@ class FileSocketHandler(
             START_FILE_UPLAOD_FLAG ->
                 fileUploadingSessions
                     .add(FileUploadingSession(session.id, tree.get("fileName").asText()))
+
+            SHARE_FILE -> {
+                val file = fileRepository.findById(UUID.fromString(tree.get("fileId").asText()))
+                    ?: return
+                val shareTo = userRepository.findByName(tree.get("shareTo").asText())
+                val sessionsForSync = sessions.filter { it.userId == shareTo?.id }
+                sessionsForSync.forEach {
+                    runCatching {
+                        it.session.sendMessage(TextMessage(JSONObject(mapOf(
+                            "type" to "uploadFile",
+                            "result" to file.toMap
+                        )).toString()))
+                    }.getOrElse {
+                        it.printStackTrace()
+                    }
+                }
+            }
+
         }
     }
 

@@ -8,6 +8,11 @@ import java.util.*
 @Component
 class LocalFileRepository : FileRepository {
     private val data: MutableList<UserFile> = mutableListOf()
+
+    override fun findById(id: UUID): UserFile? {
+        return data.find { it.id == id }
+    }
+
     override fun save(file: UserFile): UserFile {
         if (data.any { it.id == file.id })
             throw Exception("duplicated file id")

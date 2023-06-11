@@ -71,6 +71,7 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-right animated--grow-in" aria-labelledby="navbarDropdown">
                                 <a class="dropdown-item" href="${file['path']}" download>다운로드</a>
+                                <div class="dropdown-item" onclick="share('${file['id']}')">공유</div>
                             </div>
                         </li>
                     </ul>
@@ -96,6 +97,15 @@
                     appendFileItem(result);
                     break;
             }
+        }
+
+        function share(fileId) {
+            const shareTo = prompt("공유할 유저의 이름을 입력해주세요");
+            socket.send(JSON.stringify({
+                "type": "SHARE_FILE",
+                "fileId": fileId,
+                "shareTo": shareTo
+            }))
         }
 
         function logout() {
