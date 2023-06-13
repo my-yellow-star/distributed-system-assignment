@@ -25,6 +25,7 @@ class FileSocketHandler(
     companion object {
         const val START_FILE_UPLAOD_FLAG = "START_FILE_UPLOAD"
         const val SHARE_FILE = "SHARE_FILE"
+        const val DELETE_FILE = "DELETE_FILE"
         val logger: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
@@ -53,6 +54,26 @@ class FileSocketHandler(
                 }
             }
 
+            DELETE_FILE -> {
+                val file = fileRepository.findById(UUID.fromString(tree.get("fileId").asText()))
+                    ?: return
+                fileRepository.delete(file)
+                val userId = parseUserId(session)
+                val sessionsForSync =
+                    sessions.filter { it.userId == userId }
+                val result = mapOf(
+                    "type" to "deleteFile",
+                    "fileId" to file.id
+                )
+                logger.info("FILE DELETED - ${file.fileName}")
+                sessionsForSync.forEach {
+                    runCatching {
+                        it.session.sendMessage(TextMessage(JSONObject(result).toString()))
+                    }.getOrElse {
+                        it.printStackTrace()
+                    }
+                }
+            }
         }
     }
 
